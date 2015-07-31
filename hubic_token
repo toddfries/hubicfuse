@@ -305,7 +305,7 @@ fi
 # --------------------------------------------------------------------------------------
 STEP=1
 
-if [ -z "$( sed --version  2>/dev/null )" ]; then
+if ! [ "$( echo "abc" | sed 's/b/d/' )" = "adc" ]; then
     error 1 "${ERR_SED}"
 fi
 
@@ -372,15 +372,18 @@ ccurl()
 # --------------------------------------------------------------------------------------
 
 if [ -z "${client_id}" ]; then
-    read -p "${PROMPT_CLIENT_ID}" client_id || exit $?
+    echo -n "${PROMPT_CLIENT_ID}"
+    read client_id || exit $?
 fi
 
 if [ -z "${client_secret}" ]; then
-    read -p "${PROMPT_CLIENT_SECRET}" client_secret || exit $?
+    echo -n "${PROMPT_CLIENT_SECRET}"
+    read client_secret || exit $?
 fi
 
 if [ -z "${redirect_uri}" ]; then
-    read -p "${PROMPT_REDIRECT_URI}" redirect_uri || exit $?
+    echo -n "${PROMPT_REDIRECT_URI}"
+    read redirect_uri || exit $?
 fi
 
 if [ -z "${scope}" ]; then
@@ -388,26 +391,32 @@ if [ -z "${scope}" ]; then
 
     scope='account.r'
 
-    read -p "${PROMPT_USAGE}" usage || exit $?
+    echo -n "${PROMPT_USAGE}"
+    read usage || exit $?
     [ "$usage" = 'r' ] && scope="${scope},usage.r"
 
-    read -p "${PROMPT_GETALLLINKS}" getAllLinks || exit $?
+    echo -n "${PROMPT_GETALLLINKS}"
+    read getAllLinks || exit $?
     [ "$getAllLinks" = 'r' ] && scope="${scope},getAllLinks.r"
 
-    read -p "${PROMPT_CREDENTIALS}" credentials || exit $?
+    echo -n "${PROMPT_CREDENTIALS}"
+    read credentials || exit $?
     [ "$credentials" = 'r' ] && scope="${scope},credentials.r"
 
-    read -p "${PROMPT_ACTIVATE}" activate || exit $?
+    echo -n "${PROMPT_ACTIVATE}"
+    read activate || exit $?
     [ "$activate" = 'w' ] && scope="${scope},activate.w"
 
-    read -p "${PROMPT_LINKS}" links || exit $?
+    echo -n "${PROMPT_LINKS}"
+    read links || exit $?
     l="$( printf -- '%s' "${links}" | sed 's/[^\(w\|r\|d\)]//g' )"
     [ -n "$l" ] && [ "${l}" = "${links}" ] && scope="${scope},links.${l}"
     printf '\n' >&2
 fi
 
 if [ -z "${user_login}" ]; then
-    read -p "${PROMPT_USER_LOGIN}" user_login || exit $?
+    echo -n "${PROMPT_USER_LOGIN}"
+    read user_login || exit $?
 fi
 
 

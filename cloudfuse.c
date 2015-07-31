@@ -256,7 +256,7 @@ static int cfs_readdir(const char *path, void *buf, fuse_fill_dir_t filldir, off
 {
   dir_entry *de;
   if (!caching_list_directory(path, &de))
-    return -ENOLINK;
+    return -ENOENT;
   filldir(buf, ".", NULL, 0);
   filldir(buf, "..", NULL, 0);
   for (; de; de = de->next)

@@ -169,7 +169,7 @@ static size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userp)
    return rw_callback(fwrite2, ptr, size, nmemb, userp);
 }
 
-static int send_request_size(const char *method, const char *path, void *fp,
+static int send_request_size(const char *method, const char *path, void *fpv,
                         xmlParserCtxtPtr xmlctx, curl_slist *extra_headers,
                         off_t file_size, int is_segment)
 {
@@ -177,6 +177,7 @@ static int send_request_size(const char *method, const char *path, void *fp,
   char *slash;
   long response = -1;
   int tries = 0;
+  FILE *fp = fpv;
 
   if (!storage_url[0])
   {
@@ -335,18 +336,11 @@ void run_segment_threads(const char *method, int segments, int full_segments, in
             malloc(segments * sizeof(struct segment_info));
 
     pthread_t *threads = (pthread_t *)malloc(segments * sizeof(pthread_t));
-#ifdef __linux__
-    snprintf(file_path, PATH_MAX, "/proc/self/fd/%d", fileno(fp));
-#else
-    //TODO: I haven't actually tested this
-    if (fcntl(fileno(fp), F_GETPATH, file_path) == -1)
-      fprintf(stderr, "couldn't get the path name\n");
-#endif
 
     int i;
     for (i = 0; i < segments; i++) {
       info[i].method = method;
-      info[i].fp = fopen(file_path, method[0] == 'G' ? "r+" : "r");
+      info[i].fp = fdopen(dup(fileno(fp)), method[0] == 'G' ? "r+" : "r");
       info[i].part = i;
       info[i].segment_size = size_of_segments;
       info[i].size = i < full_segments ? size_of_segments : remaining;
